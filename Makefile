@@ -181,6 +181,7 @@ UPROGS=\
 	_usertests\
 	_wc\
 	_zombie\
+	_date\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
@@ -240,7 +241,8 @@ qemu-gdb: fs.img xv6.img .gdbinit
 qemu-nox-gdb: fs.img xv6.img .gdbinit
 	@echo "*** Now run 'gdb'." 1>&2
 	$(QEMU) -nographic $(QEMUOPTS) -S $(QEMUGDB)
-
+gdb: .gdbinit
+	gdb -n -x .gdbinit
 # CUT HERE
 # prepare dist for students
 # after running make dist, probably want to

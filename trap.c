@@ -31,6 +31,7 @@ idtinit(void)
 {
   lidt(idt, sizeof(idt));
 }
+int mappages(pde_t *pgdir, void *va, uint size, uint pa, int perm);
 
 //PAGEBREAK: 41
 void
@@ -77,8 +78,13 @@ trap(struct trapframe *tf)
             cpuid(), tf->cs, tf->eip);
     lapiceoi();
     break;
-
-  //PAGEBREAK: 13
+  case 14: ;// PAGEBREAK
+    char *mem;
+    mem = kalloc();
+    memset(mem, 0, PGSIZE);
+    mappages(myproc()->pgdir, (char *)PGROUNDDOWN(rcr2()), PGSIZE, V2P(mem), PTE_W | PTE_U);
+    break;
+  // PAGEBREAK: 13
   default:
     if(myproc() == 0 || (tf->cs&3) == 0){
       // In kernel, it must be our mistake.

@@ -78,12 +78,14 @@ trap(struct trapframe *tf)
             cpuid(), tf->cs, tf->eip);
     lapiceoi();
     break;
-  case 14: ;// PAGEBREAK
+  case T_PGFLT: ;// PAGEBREAK
+    cprintf("lazy alloc triggerd!\n");
     char *mem;
     mem = kalloc();
     memset(mem, 0, PGSIZE);
     mappages(myproc()->pgdir, (char *)PGROUNDDOWN(rcr2()), PGSIZE, V2P(mem), PTE_W | PTE_U);
-    break;
+    switchuvm(myproc());
+    return;
   // PAGEBREAK: 13
   default:
     if(myproc() == 0 || (tf->cs&3) == 0){

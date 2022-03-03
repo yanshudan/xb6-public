@@ -54,6 +54,18 @@ trap(struct trapframe *tf)
       ticks++;
       wakeup(&ticks);
       release(&tickslock);
+      if (myproc() != 0 && myproc()->alarmticks != 0 && (tf->cs & 3) == 3)
+      {
+        myproc()->counter++;
+        if (myproc()->counter == myproc()->alarmticks)
+        {
+          myproc()->counter = 0;
+          // arrange user stack
+          //resume your work here
+          switchuvm(myproc());
+          cprintf("time up! call handler\n");
+        }
+      }
     }
     lapiceoi();
     break;
@@ -79,7 +91,7 @@ trap(struct trapframe *tf)
     lapiceoi();
     break;
   case T_PGFLT: ;// PAGEBREAK
-    cprintf("lazy alloc triggerd!\n");
+    // cprintf("lazy alloc triggerd!\n");
     char *mem;
     mem = kalloc();
     memset(mem, 0, PGSIZE);

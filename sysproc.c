@@ -100,3 +100,17 @@ int sys_date(void){
   cmostime(ret);
   return 0;
 }
+
+//call function periodically
+int sys_alarm(void){
+  int n;
+  void (*fn)();
+
+  if(argint(0, &n) < 0)
+    return -1;
+  if(argptr(1, (char**)&fn, 1) < 0) 
+    return -1;
+  myproc()->alarmticks=n;
+  myproc()->handler=fn;
+  return 0;
+}

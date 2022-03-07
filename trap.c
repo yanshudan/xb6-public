@@ -62,8 +62,25 @@ trap(struct trapframe *tf)
           myproc()->counter = 0;
           // arrange user stack
           //resume your work here
-          switchuvm(myproc());
-          cprintf("time up! call handler\n");
+          tf->esp -= 4;
+          *((uint *)tf->esp) = tf->eip; // save %eip
+          tf->eip = (uint)myproc()->handler; // replace with handler's address
+
+          // // save caller-saved registers: %eax, %ecx, %edx
+          // tf->esp -= 12;
+          // *((uint *)tf->esp + 2) = tf->eax;
+          // *((uint *)tf->esp + 1) = tf->ecx;
+          // *((uint *)tf->esp) = tf->edx;
+
+          // // inject shell code on user stack (restore caller-saved registers)
+          // // shell code (add esp,8;pop edx;pop ecx;pop eax;ret;), little endian
+          // tf->esp -= 8;
+          // *((uint *)tf->esp) = 0x5a08c483;
+          // *((uint *)tf->esp + 1) = 0xc35859;
+
+          // // shell code address, will be popped after the handler
+          // tf->esp -= 4;
+          // *((uint *)tf->esp) = tf->esp + 4;
         }
       }
     }
